@@ -75,6 +75,11 @@ export const verifySecret = async ({ accountId, password }: { accountId: string,
     try {
         const { account } = await createAdminClient();
 
+         // DEBUG - remove after fixing
+        console.log("accountId:", accountId);
+        console.log("password/OTP:", password);
+        console.log("password length:", password.length);
+
         // ✅ CORRECT method for email OTP verification
         const session = await account.createSession(accountId, password);
 
@@ -125,7 +130,7 @@ export const signOutUser = async () => {
     }
 };
 
-export const signInUser = async ({ email }: { email: string }) => {
+export const signInUser = async ({ email, password }: { email: string; password: string }) => {
     try {
       const existingUser = await getUserByEmail(email);
   
