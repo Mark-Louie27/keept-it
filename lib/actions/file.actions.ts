@@ -14,7 +14,7 @@ const handleError = (error: unknown, message: string) => {
 };
 
 export const uploadFile = async ({ file, ownerId, accountId, path }: UploadFileProps) => {
-    const { storage, databse } = await createAdminClient();
+    const { storage, database } = await createAdminClient();
 
     try {
         const inputFile = InputFile.fromBuffer(file, file.name);
@@ -33,14 +33,14 @@ export const uploadFile = async ({ file, ownerId, accountId, path }: UploadFileP
             bucketFileId: bucketFile.$id,
         };
 
-        const newFile = await databse.createDocument(
+        const newFile = await database.createDocument(
             appwriteConfig.databaseId,
             appwriteConfig.filesCollectionId,
             ID.unique(),
             fileDocument
         )
 
-           .cathc(async (error: unknown) => {
+           .catch(async (error: unknown) => {
                 await storage.deleteFile(appwriteConfig.bucket, bucketFile.$id);
                 handleError(error, "Failed to create file document");
            });

@@ -73,9 +73,10 @@ export const creatAccount = async ({
 
 export const verifySecret = async ({ accountId, password }: { accountId: string, password: string }) => {
     try {
-    const { account} = await createAdminClient();
+        const { account } = await createAdminClient();
 
-    const session = await account.createSession(accountId, password);
+        // ✅ CORRECT method for email OTP verification
+        const session = await account.createSession(accountId, password);
 
         (await cookies()).set('appwrite-session', session.secret, {
             path: '/',
@@ -91,19 +92,24 @@ export const verifySecret = async ({ accountId, password }: { accountId: string,
 };
 
 export const getCurrentUser = async () => {
-    const { database, account } = await createSessionClient();
+    try {
+        const { database, account } = await createSessionClient();
 
-    const result = await account.get();
+        const result = await account.get();
 
-    const user = await database.listDocuments(
-        appwriteConfig.databaseId,
-        appwriteConfig.userCollectionId,
-        [Query.equal("accountId", result.$id)],
-    );
+        const user = await database.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.userCollectionId,
+            [Query.equal("accountId", result.$id)],
+        );
 
-    if(user.total <= 0) return null;
+        if(user.total <= 0) return null;
 
-    return parseStringify(user.documents[0]);
+        return parseStringify(user.documents[0]);
+    } catch (error) {
+        return null;
+    }
+    
 };
 
 export const signOutUser = async () => {
